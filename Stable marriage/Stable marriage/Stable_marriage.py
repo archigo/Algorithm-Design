@@ -20,7 +20,7 @@ def parseFile(self, path):
 		elif (lineStr.startswith('n')):
 			numberStr = lineStr[2:]
 			n = int(numberStr)
-			remainingPeople = n
+			remainingPeople = n * 2
 		elif (remainingPeople > 0):
 			idAndName = lineStr.split(' ')
 			id = int(idAndName[0])
@@ -37,6 +37,7 @@ def parseFile(self, path):
 				woman.id = id
 				woman.name = name
 				allPeople.append(woman)
+			remainingPeople -= 1
 
 
 
