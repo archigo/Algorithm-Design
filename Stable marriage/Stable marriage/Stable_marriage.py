@@ -4,7 +4,6 @@ unmarriedMen = []
 n = -1
 
 def main():
-	print("does this do anything")
 	# SETUP
 
 	n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
@@ -43,7 +42,6 @@ def parseFile(path):
 				man = Man()
 				man.id = id
 				man.name = name[:-1]
-				man.prios = [None]*(n*2)
 				allPeople.append(man)
 				allMen.append(man)
 				unmarriedMen.append(man)
@@ -81,12 +79,14 @@ def parseFile(path):
 
 
 class Man:
-	id = -1
-	marriedTo = -1;
-	name = ""
+	def __init__(self):
+		self.id = -1
+		self.name = ""
 		#prio stack, value at each index is the priority of the person with that index e.g. 
 		#prios[10] = 70 means this person has given person with index 10 prio 70
-	prios = [] 
+		self.prios = []
+		self.marriedTo = -1
+
 	def propose(self):
 
 		if(self.id == 5):
@@ -101,10 +101,12 @@ class Man:
 			self.marriedTo = woman.id
 
 class Woman:
-	id = -1
-	name = ""
-	marriedTo = -1
-	prios = [] #contains ids transformed using getPrioId(int)
+	def __init__(self):
+		self.id = -1
+		self.name = ""
+		self.marriedTo = -1
+		self.prios = [] #contains ids transformed using getPrioId(int)
+
 	def marry(self, newGuyId):
 
 		if(self.id == 88):
@@ -116,7 +118,7 @@ class Woman:
 			return True
 		elif (self.prios[prioId] > self.prios[self.marriedTo]):
 			realPrevManId = getOriginalId(self.marriedTo)
-			unmarriedMen.append(allMen[realPrevManId])
+			unmarriedMen.append(allMen[int(realPrevManId/2+1)])
 			self.marriedTo = prioId
 			return True
 		else:
