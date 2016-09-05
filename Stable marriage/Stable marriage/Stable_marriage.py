@@ -7,17 +7,22 @@ def main():
 	print("does this do anything")
 	# SETUP
 
-	n = parseFile( "C:/Users/Archigo/Documents/GitHub/Algorithm-Design/Stable marriage/Stable marriage/algdes-labs-master/matching/data/sm-illiad-in.txt")
+	n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
 	while (len(unmarriedMen) > 0):
-		unmarriedMan = unmarriedMen.pop()
+		unmarriedMan = unmarriedMen.pop(0)
 		unmarriedMan.propose()
 	c = 0
 	while(c < n*2):
-		woman = allPeople[c+1]
-		oId = getOriginalId(woman.marriedTo)
-		man = allPeople[oId+1]
+
+		man = allPeople[c];
+		woman = allPeople[man.marriedTo-1]
+
+		
+		##woman = allPeople[c+1]
+		##oId = getOriginalId(woman.marriedTo)
+		##man = allPeople[oId+1]
 		c += 2
-		print(man.name + " -- " + woman.name + "\n")
+		print(man.name + " -- " + woman.name)
 
 def parseFile(path):
 	file = open(path, "r")
@@ -37,14 +42,15 @@ def parseFile(path):
 			if (id % 2 != 0):	# Is man
 				man = Man()
 				man.id = id
-				man.name = name
+				man.name = name[:-1]
+				man.prios = [None]*(n*2)
 				allPeople.append(man)
 				allMen.append(man)
 				unmarriedMen.append(man)
 			else:				# Is woman
 				woman = Woman()
 				woman.id = id
-				woman.name = name
+				woman.name = name[:-1]
 				woman.prios = [None]*n
 				allPeople.append(woman)
 			remainingPeople -= 1
@@ -53,7 +59,9 @@ def parseFile(path):
 		elif(remainingPeople == 0):
 			splitLine = lineStr.split(' ')
 			lenght = len(splitLine)
-			id = int(splitLine[0][:1])
+			id = int(splitLine[0][:-1])
+			if(id == 5 | id == 88):
+				debug = True;
 			if(id % 2 != 0): #man
 				man = allPeople[id-1]
 				counter = 1
@@ -74,21 +82,34 @@ def parseFile(path):
 
 class Man:
 	id = -1
+	marriedTo = -1;
 	name = ""
-	prios = []
+		#prio stack, value at each index is the priority of the person with that index e.g. 
+		#prios[10] = 70 means this person has given person with index 10 prio 70
+	prios = [] 
 	def propose(self):
-		wId = self.prios.pop()
-		woman = allPeople[wId]
+
+		if(self.id == 5):
+			debug = True;
+
+		wId = self.prios.pop(0)
+		woman = allPeople[wId-1]
 		success = woman.marry(self.id)
 		if (success == False):
 			unmarriedMen.append(self)
+		else:
+			self.marriedTo = woman.id
 
 class Woman:
 	id = -1
 	name = ""
 	marriedTo = -1
-	prios = []
+	prios = [] #contains ids transformed using getPrioId(int)
 	def marry(self, newGuyId):
+
+		if(self.id == 88):
+			debug = True;
+
 		prioId = getPrioId(newGuyId)
 		if (self.marriedTo == -1):
 			self.marriedTo = prioId
