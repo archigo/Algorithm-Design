@@ -6,6 +6,8 @@ n = -1
 def run(self):
 	# SETUP
 	classmethod()
+
+	parseFile("/algdes-labs-master/matching/data/sm-illiad-in.txt")
 	while (unmarriedMen.count > 0):
 		unmarriedMan = unmarriedMen.pop()
 		unmarriedMan.propose()
@@ -20,7 +22,7 @@ def parseFile(self, path):
 		elif (lineStr.startswith('n')):
 			numberStr = lineStr[2:]
 			n = int(numberStr)
-			remainingPeople = n
+			remainingPeople = n*2
 		elif (remainingPeople > 0):
 			idAndName = lineStr.split(' ')
 			id = int(idAndName[0])
@@ -37,6 +39,24 @@ def parseFile(self, path):
 				woman.id = id
 				woman.name = name
 				allPeople.append(woman)
+			remainingPeople =- 1
+		elif(lineStr.startswith(' ')):
+			continue
+		elif(remainingPeople == 0):
+			splitLine = lineStr.split(' ')
+			lenght = len(splitLine)
+			id = int(splitLine[0][:1])
+			if(id % 2 != 0): #man
+				man = Man(allPeople[id-1])
+				counter = 1
+				while(counter < lenght):
+					man.prios.append(int(splitLine[counter]))
+			if(id % 2 == 0): #woman
+				woman = Woman(allPeople[id-1])
+				counter = 1
+				while(counter < lenght):
+					prioId = getPrioId(int(splitLine[counter]))
+					woman.prios[prioId] = int(lenght-counter)
 
 
 
@@ -45,8 +65,9 @@ class Man:
 	name = ""
 	prios = []
 	def propose(self):
-		w = prios.pop()
-		success = w.marry(id)
+		wId = prios.pop()
+		woman = allPeople[wId-1]
+		success = woman.marry(id)
 		if (success == False):
 			unmarriedMen.append(self)
 
@@ -69,7 +90,8 @@ class Woman:
 			return False
 
 def getPrioId(id):
-	return (id - 1) / 2
+	return int((id - 1) / 2)
 
 def getOriginalId(id):
-	return id * 2 + 1
+
+	return int(id * 2 + 1)
