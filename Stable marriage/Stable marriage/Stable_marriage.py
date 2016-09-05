@@ -73,9 +73,10 @@ def parseFile(path):
 
 
 class Man:
-	id = -1
-	name = ""
-	prios = []
+	def __init__(self):
+		self.id = -1
+		self.name = ""
+		self.prios = []
 	def propose(self):
 		wId = self.prios.pop()
 		woman = allPeople[wId]
@@ -84,10 +85,12 @@ class Man:
 			unmarriedMen.append(self)
 
 class Woman:
-	id = -1
-	name = ""
-	marriedTo = -1
-	prios = []
+	def __init__(self):
+		self.id = -1
+		self.name = ""
+		self.marriedTo = -1
+		self.prios = []
+
 	def marry(self, newGuyId):
 		prioId = getPrioId(newGuyId)
 		if (self.marriedTo == -1):
