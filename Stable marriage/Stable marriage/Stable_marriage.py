@@ -6,8 +6,8 @@ n = -1
 def main():
 	# SETUP
 
-	#n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
-	n = parseFile( "algdes-labs-master/matching/data/sm-bbt-in.txt")
+	n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
+	#n = parseFile( "algdes-labs-master/matching/data/sm-bbt-in.txt")
 	while (len(unmarriedMen) > 0):
 		unmarriedMan = unmarriedMen.pop(0)
 		unmarriedMan.propose()
@@ -15,9 +15,8 @@ def main():
 	while(c < n*2):
 
 		man = allPeople[c];
-		woman = allPeople[man.marriedTo-1]
+		woman = allPeople[man.marriedTo - 1]
 
-		
 		##woman = allPeople[c+1]
 		##oId = getOriginalId(woman.marriedTo)
 		##man = allPeople[oId+1]
@@ -57,7 +56,7 @@ def parseFile(path):
 			continue
 		elif(remainingPeople == 0):
 			splitLine = lineStr.split(' ')
-			length = len(splitLine)
+			length = len(splitLine) - 1
 			id = int(splitLine[0][:-1])
 			if(id == 5 | id == 88):
 				debug = True;
