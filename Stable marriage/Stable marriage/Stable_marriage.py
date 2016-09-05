@@ -7,7 +7,8 @@ def main():
 	print("does this do anything")
 	# SETUP
 
-	n = parseFile( "C:/Users/Archigo/Documents/GitHub/Algorithm-Design/Stable marriage/Stable marriage/algdes-labs-master/matching/data/sm-illiad-in.txt")
+	#n = parseFile("C:/Users/Archigo/Documents/GitHub/Algorithm-Design/Stable marriage/Stable marriage/algdes-labs-master/matching/data/sm-illiad-in.txt")
+	n = parseFile("C:/Users/kenne/Documents/GitHub/Algorithm-Design/Stable marriage/Stable marriage/algdes-labs-master/matching/data/sm-illiad-in.txt")
 	while (len(unmarriedMen) > 0):
 		unmarriedMan = unmarriedMen.pop()
 		unmarriedMan.propose()
