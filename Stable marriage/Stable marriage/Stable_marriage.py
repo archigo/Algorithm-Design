@@ -6,8 +6,8 @@ n = -1
 def main():
 	# SETUP
 
-	n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
-	#n = parseFile( "algdes-labs-master/matching/data/sm-bbt-in.txt")
+	#n = parseFile( "algdes-labs-master/matching/data/sm-illiad-in.txt")
+	n = parseFile( "algdes-labs-master/matching/data/sm-bbt-in.txt")
 	while (len(unmarriedMen) > 0):
 		unmarriedMan = unmarriedMen.pop(0)
 		unmarriedMan.propose()
@@ -110,7 +110,7 @@ class Woman:
 
 	def marry(self, newGuyId):
 
-		if(self.id == 88):
+		if(self.id == 6):
 			debug = True;
 
 		prioId = getPrioId(newGuyId)
@@ -119,8 +119,8 @@ class Woman:
 			return True
 		elif (self.prios[prioId] > self.prios[self.marriedTo]):
 			realPrevManId = getOriginalId(self.marriedTo)
-			unmarriedMen.append(allMen[int(realPrevManId/2+1)])
-			self.marriedTo = prioId
+			unmarriedMen.append(allPeople[realPrevManId - 1])
+			self.marriedTo = getOriginalId(prioId)
 			return True
 		else:
 			return False
