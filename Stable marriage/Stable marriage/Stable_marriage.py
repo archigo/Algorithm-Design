@@ -115,11 +115,10 @@ class Woman:
 
 		prioId = getPrioId(newGuyId)
 		if (self.marriedTo == -1):
-			self.marriedTo = prioId
+			self.marriedTo = getOriginalId(prioId)
 			return True
-		elif (self.prios[prioId] > self.prios[self.marriedTo]):
-			realPrevManId = getOriginalId(self.marriedTo)
-			unmarriedMen.append(allPeople[realPrevManId - 1])
+		elif (self.prios[prioId] > self.prios[getPrioId(self.marriedTo)]):
+			unmarriedMen.append(allPeople[self.marriedTo - 1]) # minus 1 to get ID in allPeople
 			self.marriedTo = getOriginalId(prioId)
 			return True
 		else:
