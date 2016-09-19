@@ -21,9 +21,14 @@ namespace Closest_Points
         //public static List<Point> SortedByY { get; set; }
         public static void Main(string[] args)
         {
-            // TODO: Parsing
-            Console.WriteLine("write the name of a file in the data subfoler. FX: \"a280 - tsp.txt\"");
-            inputFile += Console.ReadLine();
+            if (args.Length != 0 && args[0].Length != 0)
+                inputFile += args[0];
+            else
+            {
+                // TODO: Parsing
+                Console.WriteLine("write the name of a file in the data subfoler. FX: \"a280 - tsp.txt\"");
+                inputFile += Console.ReadLine();
+            }
 
             Parse();
             var input = Input.OrderBy(p => p.X).ToList();
