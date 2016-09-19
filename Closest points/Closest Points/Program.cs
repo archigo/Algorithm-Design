@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,11 @@ namespace Closest_Points
         public static void Main(string[] args)
         {
             // TODO: Parsing
+            var fileName = args[1];
+            var currentDir = Environment.CurrentDirectory;
 
+            var fileContents =
+                File.OpenText(Path.Combine(currentDir, string.Format("\\closest-points\\data\\{0}", inputFile)));
 
             var input = Input.OrderBy(p => p.X).ToList();
             double result = DoWork(input);
