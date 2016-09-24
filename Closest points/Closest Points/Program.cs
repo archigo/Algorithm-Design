@@ -30,8 +30,6 @@ namespace Closest_Points
     public class Program
     {
         public static List<Point> Input { get; set; } = new List<Point>();
-        //public static List<Point> SortedByX { get; set; }
-        //public static List<Point> SortedByY { get; set; }
 
         private static bool fullExection = true;
         public static void Main(string[] args)
