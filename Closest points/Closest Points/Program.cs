@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,11 +40,16 @@ namespace Closest_Points
             {
                 var directoryPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\"), @"closest-points\data\");
                 var files = Directory.GetFiles(directoryPath);
+                var watch = new Stopwatch();
+                watch.Start();
                 foreach (var file in files)
                 {
+                    if (Path.GetFileName(file).StartsWith("wc")) continue;
                     CalculateResultForFile(Path.GetFileName(file), file);
                     Input.Clear();
                 }
+                watch.Stop();
+                Console.WriteLine("Time elapsed: " + watch.ElapsedMilliseconds + " ms");
             }
             else
             {
@@ -119,15 +125,23 @@ namespace Closest_Points
 
             for (int i = 0; i < ySortedWithinDelta.Count; i++)
             {
+                // ALTERNATIVE: 
                 var pt = ySortedWithinDelta[i];
-                var ySortedWithoutPt = new List<Point>(ySortedWithinDelta);
-                ySortedWithoutPt.RemoveAt(i);
+                var endIndex = ySortedWithinDelta.Count - 1 - i;
+                endIndex = Math.Min(endIndex, i + 10);
+                var ySortedWithoutPt = new List<Point>(ySortedWithinDelta).GetRange(i + 1, endIndex);
+                foreach (var cmpPt in ySortedWithoutPt)
 
-                var startIndex = Math.Max(0, i - 10);
-                var endIndex = Math.Min(ySortedWithoutPt.Count - 1, i + 10);
-                var length = endIndex - startIndex;
-                var comparedTo = ySortedWithoutPt.GetRange(startIndex, length);
-                foreach (var cmpPt in comparedTo)
+                // WORKING
+                //var pt = ySortedWithinDelta[i];
+                //var ySortedWithoutPt = new List<Point>(ySortedWithinDelta);
+                //ySortedWithoutPt.RemoveAt(i);
+
+                //var startIndex = Math.Max(0, i - 10);
+                //var endIndex = Math.Min(ySortedWithoutPt.Count - 1, i + 10);
+                //var length = endIndex - startIndex;
+                //var comparedTo = ySortedWithoutPt.GetRange(startIndex, length);
+                //foreach (var cmpPt in comparedTo)
                 {
                     dist = Math.Sqrt(Math.Pow(cmpPt.X - pt.X, 2) + Math.Pow(cmpPt.Y - pt.Y, 2));
                     if (dist < delta)
