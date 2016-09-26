@@ -31,7 +31,7 @@ namespace Gorilla
 
             // Get some input
             First =   "KQRK";
-            Second =  "KAK";
+            Second =  "*KAK";
             // Result: Should be "K-AK" but is "KAK*"
 
             // Do work given last valid indexes
@@ -46,7 +46,7 @@ namespace Gorilla
         private static Tuple<int, string> DoWork(int idx1, int idx2)
         {
             Tuple<int, string> result;
-            if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
+            //if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
 
             // Check out of bounds
             if (idx1 == -1 || idx2 == -1) return Tuple.Create(0, ""); // "****"
@@ -67,7 +67,7 @@ namespace Gorilla
                 var res = exchangeCost >= minusCost
                     ? Tuple.Create(exchangeCost, "" + char2)
                     : Tuple.Create(minusCost, "*");
-                Cache.Add(Tuple.Create(idx1, idx2), res);
+                //Cache.Add(Tuple.Create(idx1, idx2), res);
                 Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, res.Item1, res.Item2);
                 return res;
             }
@@ -76,7 +76,11 @@ namespace Gorilla
             var replace = DoWork(idx1 - 1, idx2 - 1);
             var minus2 = DoWork(idx1 - 1, idx2);
 
-            var best =  Math.Max(minus1.Item1, Math.Max(replace.Item1, minus2.Item1));
+            //if (minus1.Item2.Equals("out")) minus1 = Tuple.Create(-999, "out");
+            //if (minus2.Item2.Equals("out")) minus2 = Tuple.Create(-999, "out");
+            //if (replace.Item2.Equals("out")) replace = Tuple.Create(-999, "out");
+
+            var best =  Math.Max(minus1.Item1, Math.Max(replace.Item1+exchangeCost, minus2.Item1));
             string part;
             if (minus1.Item1 == best)
             {
@@ -84,10 +88,9 @@ namespace Gorilla
                 best += minusCost;
                 Console.WriteLine("minus 1! (Iterating string 2)");
             }
-            else if (replace.Item1 == best)
+            else if (replace.Item1+exchangeCost == best)
             {
                 part = replace.Item2 + char2;
-                best += exchangeCost;
                 Console.WriteLine("Exchanging {0} with {1}", char1, char2);
             }
             else
@@ -99,7 +102,7 @@ namespace Gorilla
 
             // Cache idx + "part"
             var costAndPart = Tuple.Create(best, part);
-            Cache.Add(Tuple.Create(idx1, idx2), costAndPart);
+            //Cache.Add(Tuple.Create(idx1, idx2), costAndPart);
             Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, best, part);
             return costAndPart;
         }
