@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Closest_Points
 {
@@ -30,12 +31,11 @@ namespace Closest_Points
     public class Program
     {
         public static List<Point> Input { get; set; } = new List<Point>();
-        //public static List<Point> SortedByX { get; set; }
-        //public static List<Point> SortedByY { get; set; }
 
         private static bool fullExection = true;
         public static void Main(string[] args)
         {
+            var watch = new Stopwatch();
             if (fullExection)
             {
                 var directoryPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\"), @"closest-points\data\");
@@ -49,7 +49,7 @@ namespace Closest_Points
                     Input.Clear();
                 }
                 watch.Stop();
-                Console.WriteLine("Time elapsed: " + watch.ElapsedMilliseconds + " ms");
+                Console.WriteLine(string.Format("FINISHED in {0} ms", watch.ElapsedMilliseconds));
             }
             else
             {
@@ -77,7 +77,7 @@ namespace Closest_Points
             var contentArray = File.ReadAllLines(fullPath);
 
             Parse(contentArray);
-            
+
             var input = Input.OrderBy(p => p.X).ToList();
             var result = DoWork(input);
 
@@ -109,7 +109,7 @@ namespace Closest_Points
         {
             double dist;
             double delta;
-            if (input.Count < 4) //we assume there can never be less than 2 points in input
+            if (input.Count < 4)
             {
                 return GetResultForLessThanFourPoints(input);
             }
@@ -127,21 +127,15 @@ namespace Closest_Points
             {
                 // ALTERNATIVE: 
                 var pt = ySortedWithinDelta[i];
-                var endIndex = ySortedWithinDelta.Count - 1 - i;
-                endIndex = Math.Min(endIndex, i + 10);
-                var ySortedWithoutPt = new List<Point>(ySortedWithinDelta).GetRange(i + 1, endIndex);
-                foreach (var cmpPt in ySortedWithoutPt)
 
-                // WORKING
-                //var pt = ySortedWithinDelta[i];
-                //var ySortedWithoutPt = new List<Point>(ySortedWithinDelta);
-                //ySortedWithoutPt.RemoveAt(i);
+                var ySortedWithoutPt = new List<Point>(ySortedWithinDelta);
+                ySortedWithoutPt.RemoveAt(i);
 
-                //var startIndex = Math.Max(0, i - 10);
-                //var endIndex = Math.Min(ySortedWithoutPt.Count - 1, i + 10);
-                //var length = endIndex - startIndex;
-                //var comparedTo = ySortedWithoutPt.GetRange(startIndex, length);
-                //foreach (var cmpPt in comparedTo)
+                var startIndex = Math.Max(0, i - 8);
+                var endIndex = Math.Min(ySortedWithoutPt.Count - 1, i + 8);
+                var length = endIndex - startIndex;
+                var comparedTo = ySortedWithoutPt.GetRange(startIndex, length);
+                foreach (var cmpPt in comparedTo)
                 {
                     dist = Math.Sqrt(Math.Pow(cmpPt.X - pt.X, 2) + Math.Pow(cmpPt.Y - pt.Y, 2));
                     if (dist < delta)
@@ -155,18 +149,15 @@ namespace Closest_Points
 
         private static double GetResultForLessThanFourPoints(List<Point> input)
         {
-            double delta = 0;
+            double delta = double.MaxValue;
             for (int i = 0; i < input.Count; i++)
             {
                 for (int j = 0; j < input.Count; j++)
                 {
                     if (i == j) continue; //don't compare the point with itself
-                    var dist =
-                        Math.Sqrt(Math.Pow(input[i].X - input[j].X, 2) +
+                    var dist = Math.Sqrt(Math.Pow(input[i].X - input[j].X, 2) +
                                   Math.Pow(input[i].Y - input[j].Y, 2));
-                    if (i == 0 && j == 1) delta = dist; //set the first delta so it is not 0
-
-                    else if (dist < delta)
+                    if (dist < delta)
                     {
                         delta = dist;
                     }
