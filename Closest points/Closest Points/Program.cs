@@ -35,7 +35,6 @@ namespace Closest_Points
         private static bool fullExection = true;
         public static void Main(string[] args)
         {
-            var watch = new Stopwatch();
             if (fullExection)
             {
                 var directoryPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\"), @"closest-points\data\");
