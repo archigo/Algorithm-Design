@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Pong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Box.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Ball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Pong.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Box.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\src\Ball.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Archigo\Dropbox\SWU\7. semester\Game Engines\exercise 4-2 pong optional\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5F842C85-9883-3DB0-880E-02EF78FA37A4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9091DD0D-5BD9-3F4B-91D4-CD016FA53AEF}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
