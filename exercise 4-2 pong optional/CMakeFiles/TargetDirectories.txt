@@ -1,3 +1,0 @@
-C:/Users/Archigo/Dropbox/SWU/7. semester/Game Engines/exercise 4-2 pong optional/CMakeFiles/Pong_MathEx.dir
-C:/Users/Archigo/Dropbox/SWU/7. semester/Game Engines/exercise 4-2 pong optional/CMakeFiles/ALL_BUILD.dir
-C:/Users/Archigo/Dropbox/SWU/7. semester/Game Engines/exercise 4-2 pong optional/CMakeFiles/ZERO_CHECK.dir
