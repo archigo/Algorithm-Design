@@ -24,16 +24,17 @@ namespace Gorilla
 
         static void Main(string[] args)
         {
+            
+
             // Parse Cost-Matrix
             var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\"),
                     string.Format(@"data\{0}", "BLOSUM62.txt")));
             ParseCostMatrix(contents);
 
             // Get some input
-            First =   "KQRK";
-            Second =  "*KAK";
+            First =  "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
             // Result: Should be "K-AK" but is "KAK*"
-
             // Do work given last valid indexes
             var res = DoWork(First.Length - 1, Second.Length - 1);
             Console.WriteLine("Based on: ");
@@ -46,7 +47,7 @@ namespace Gorilla
         private static Tuple<int, string> DoWork(int idx1, int idx2)
         {
             Tuple<int, string> result;
-            //if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
+            if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
 
             // Check out of bounds
             if (idx1 == -1 || idx2 == -1) return Tuple.Create(0, ""); // "****"
@@ -67,8 +68,8 @@ namespace Gorilla
                 var res = exchangeCost >= minusCost
                     ? Tuple.Create(exchangeCost, "" + char2)
                     : Tuple.Create(minusCost, "*");
-                //Cache.Add(Tuple.Create(idx1, idx2), res);
-                Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, res.Item1, res.Item2);
+                Cache.Add(Tuple.Create(idx1, idx2), res);
+                //Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, res.Item1, res.Item2);
                 return res;
             }
 
@@ -80,30 +81,28 @@ namespace Gorilla
             //if (minus2.Item2.Equals("out")) minus2 = Tuple.Create(-999, "out");
             //if (replace.Item2.Equals("out")) replace = Tuple.Create(-999, "out");
 
-            var best =  Math.Max(minus1.Item1, Math.Max(replace.Item1+exchangeCost, minus2.Item1));
+            var best =  Math.Max(minus1.Item1+minusCost, Math.Max(replace.Item1+exchangeCost, minus2.Item1+minusCost));
             string part;
             if (minus1.Item1 == best)
             {
                 part = minus1.Item2 + "*";
-                best += minusCost;
-                Console.WriteLine("minus 1! (Iterating string 2)");
+                //Console.WriteLine("minus 1! (Iterating string 2)");
             }
             else if (replace.Item1+exchangeCost == best)
             {
                 part = replace.Item2 + char2;
-                Console.WriteLine("Exchanging {0} with {1}", char1, char2);
+                //Console.WriteLine("Exchanging {0} with {1}", char1, char2);
             }
             else
             {
                 part = minus2.Item2 + "*";
-                best += minusCost;
-                Console.WriteLine("minus 2! (Iterating string 1)");
+                //Console.WriteLine("minus 2! (Iterating string 1)");
             }
 
             // Cache idx + "part"
             var costAndPart = Tuple.Create(best, part);
-            //Cache.Add(Tuple.Create(idx1, idx2), costAndPart);
-            Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, best, part);
+            Cache.Add(Tuple.Create(idx1, idx2), costAndPart);
+            //Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, best, part);
             return costAndPart;
         }
 
