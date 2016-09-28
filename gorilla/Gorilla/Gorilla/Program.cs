@@ -24,7 +24,29 @@ namespace Gorilla
 
         static void Main(string[] args)
         {
-            
+            First = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            if (args.Length == 2)
+            {
+
+                if (args[0].Length > args[1].Length)
+                {
+                    First = args[0];
+                    var stars = args[1].Length - args[0].Length;
+                    Second = new StringBuilder().Append('*', stars).Append(args[1]).ToString();
+                }
+                if (args[0].Length < args[1].Length)
+                {
+                    First = args[1];
+                    var stars = args[0].Length - args[1].Length;
+                    Second = new StringBuilder().Append('*', stars).Append(args[0]).ToString();
+                }
+
+                First = args[0];
+                Second = args[1];
+
+
+            }
 
             // Parse Cost-Matrix
             var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\"),
@@ -32,8 +54,7 @@ namespace Gorilla
             ParseCostMatrix(contents);
 
             // Get some input
-            First =  "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
-            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            
             // Result: Should be "K-AK" but is "KAK*"
             // Do work given last valid indexes
             var res = DoWork(First.Length - 1, Second.Length - 1);
