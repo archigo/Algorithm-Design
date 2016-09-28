@@ -29,18 +29,18 @@ namespace Gorilla
             if (args.Length == 2)
             {
 
-                if (args[0].Length > args[1].Length)
+                if (args[0].Length >= args[1].Length)
                 {
                     First = args[0];
-                    var stars = args[1].Length - args[0].Length;
-                    Second = new StringBuilder().Append('*', stars).Append(args[1]).ToString();
+                    Second = args[1];
                 }
-                if (args[0].Length < args[1].Length)
+                else
                 {
                     First = args[1];
-                    var stars = args[0].Length - args[1].Length;
-                    Second = new StringBuilder().Append('*', stars).Append(args[0]).ToString();
+                    Second = args[0];
                 }
+                var stars = First.Length - Second.Length;
+                Second = new StringBuilder().Append('*', stars).Append(Second).ToString();
 
                 First = args[0];
                 Second = args[1];
