@@ -24,8 +24,8 @@ namespace Gorilla
         public static int CountCaches { get; set; }
         static void Main(string[] args)
         {
-            Second = "XGGTLAIQAQGDLTLAQKKIVRKTWHQLMRNKTSFVTDVFIRIFAYDPSAQNKFPQMAGMSASQLRSSRQMQAHAIRVSSIMSEYVEELDSDILPELLATLARTHDLNKVGADHYNLFAKVLMEALQAELGSDFNEKTRDAWAKAFSVVQAVLLVKHG";
-            First = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            First = "PIVDTGSVAPLSAAEKTKIRSAWAPVYSTYETSGVDILVKFFTSTPAAQEFFPKFKGLTTADELKKSADVRWHAERIINAVDDAVASMDDTEKMSMKLRNLSGKHAKSFQVDPEYFKVLAAVIADTVAAGDAGFEKLMSMICILLRSAY";
             if (args.Length == 2)
             {
                 First = args[0];
@@ -33,12 +33,12 @@ namespace Gorilla
 
 
             }
-            //var stars = Math.Abs(First.Length - Second.Length);
+            var stars = Math.Abs(First.Length - Second.Length);
 
-            //if (First.Length < Second.Length)
-            //    First = new StringBuilder().Append('*', stars).Append(First).ToString();
-            //else
-            //    Second = new StringBuilder().Append('*', stars).Append(Second).ToString();
+            if (First.Length < Second.Length)
+                First = new StringBuilder().Append('*', stars).Append(First).ToString();
+            else
+                Second = new StringBuilder().Append('*', stars).Append(Second).ToString();
 
             // Parse Cost-Matrix
             var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\"),
