@@ -24,7 +24,7 @@ namespace Gorilla
         public static int CountCaches { get; set; }
         static void Main(string[] args)
         {
-            Second = "VEWTDKERSIISDIFSHMDYDDIGPKALSRCLIVYPWTQRHFSGFGNLYNAEAIIGNANVAAHGIKVLHGLDRGVKNMDNIAATYADLSTLHSEKLHVDPDNFKLLSDCITIVLAAKMGHAFTAETQGAFQKFLAVVVSALGKQYH";
+            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
             First = "XGGTLAIQAQGDLTLAQKKIVRKTWHQLMRNKTSFVTDVFIRIFAYDPSAQNKFPQMAGMSASQLRSSRQMQAHAIRVSSIMSEYVEELDSDILPELLATLARTHDLNKVGADHYNLFAKVLMEALQAELGSDFNEKTRDAWAKAFSVVQAVLLVKHG";
             if (args.Length == 2)
             {
@@ -68,7 +68,7 @@ namespace Gorilla
             Second = temp;
 
             res = DoWork(First.Length - 1, Second.Length - 1);
-            Console.WriteLine("Reveresed, cost: {0}\n{1}", res.Item1, res.Item2);
+            Console.WriteLine("Reveresed order, cost: {0}\n{1}", res.Item1, res.Item2);
 
             Console.ReadLine();
         }
