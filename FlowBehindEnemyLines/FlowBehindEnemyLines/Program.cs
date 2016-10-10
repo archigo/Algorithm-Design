@@ -69,7 +69,7 @@ namespace FlowBehindEnemyLines
 			{
 				foreach (Edge edge in node.Outgoing)
 				{
-					t += edge.From.Name + " -> " + edge.To.Name + Environment.NewLine;
+					t += edge.From.Name + " ---[" + (edge.Capacity > -1 && edge.Capacity < 10 ? "0" + edge.Capacity : "" + edge.Capacity) + "]--> " + edge.To.Name + Environment.NewLine;
 				}
 			}
 			return t;
@@ -80,7 +80,7 @@ namespace FlowBehindEnemyLines
 	{
 		public static void Main(string[] args)
 		{
-			var directoryPath = "../../rail.txt";
+			var directoryPath = "../../network.txt";
 
 			var graph = new Parser(directoryPath).Parse();
 			var residualGraph = graph.Copy();
@@ -239,7 +239,7 @@ namespace FlowBehindEnemyLines
 			}
 
 			// Test
-			//Console.Write(graph.ToString());
+			// Console.Write(graph.ToString());
 
 			return graph;
 		}
