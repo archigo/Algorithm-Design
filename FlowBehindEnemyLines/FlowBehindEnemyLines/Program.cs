@@ -23,23 +23,23 @@ namespace FlowBehindEnemyLines
 		}
 	}
 
-    public class Node
-    {
-        public readonly int Id;
-        public readonly string Name;
-        public List<Edge> Outgoing { get; set; }
+	public class Node
+	{
+		public readonly int Id;
+		public readonly string Name;
+		public List<Edge> Outgoing = new List<Edge>();
 
-        public Node(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
+		public Node(int id, string name)
+		{
+			Id = id;
+			Name = name;
+		}
 
-        public override int GetHashCode()
-        {
-            return Id + Name.GetHashCode();
-        }
-    }
+		public override int GetHashCode()
+		{
+			return Id + Name.GetHashCode();
+		}
+	}
 
 	public class Graph
 	{
@@ -53,10 +53,8 @@ namespace FlowBehindEnemyLines
 			{
 				Nodes = Nodes.Select(
 					n =>
-						new Node
+						new Node(n.Id, n.Name)
 						{
-							Id = n.Id,
-							Name = n.Name,
 							Outgoing = n.Outgoing.Select(e => new Edge(e.From, e.To, e.Capacity)).ToList()
 						}).ToList()
 			};
@@ -92,33 +90,33 @@ namespace FlowBehindEnemyLines
 			alg.DoStuff();
 		}
 
-        
-    }
 
-    public class Path
-    {
-        public List<Node> Nodes { get; set; }
-        public int Bottleneck { get; set; }
+	}
 
-        public Path Copy()
-        {
-            return new Path
-            {
-                Nodes = new List<Node>(Nodes),
-                Bottleneck = this.Bottleneck
-            };
-        }
-    }
+	public class Path
+	{
+		public List<Node> Nodes { get; set; }
+		public int Bottleneck { get; set; }
+
+		public Path Copy()
+		{
+			return new Path
+			{
+				Nodes = new List<Node>(Nodes),
+				Bottleneck = this.Bottleneck
+			};
+		}
+	}
 
 	public class Algorithm
 	{
 		public Graph Original { get; set; }
 		public Graph Residual { get; set; }
 
-        public HashSet<Node> MinimumCut { get; set; }
+		public HashSet<Node> MinimumCut { get; set; }
 
-        public Node Source { get; set; }
-        public Node Target { get; set; }
+		public Node Source { get; set; }
+		public Node Target { get; set; }
 
 		public Algorithm(Graph original, Graph residual, Node source, Node target)
 		{
@@ -128,60 +126,60 @@ namespace FlowBehindEnemyLines
 			Target = target;
 		}
 
-        public void DoStuff()
-        {
-            // TODO: Find best path from Source to Target (BFS)
+		public void DoStuff()
+		{
+			// TODO: Find best path from Source to Target (BFS)
 
-            // Reset MinimumCut
-            MinimumCut.Clear();
-            var path = FindResidualPath(new Path { Nodes = {Source}, Bottleneck = int.MaxValue });
+			// Reset MinimumCut
+			MinimumCut.Clear();
+			var path = FindResidualPath(new Path { Nodes = { Source }, Bottleneck = int.MaxValue });
 
-        }
+		}
 
-        private Path FindResidualPath(Path path)
-        {
-            // Check if this path has just reached DESTINATIONS
-            if (path.Nodes.Last().Id == Target.Id) return path;
+		private Path FindResidualPath(Path path)
+		{
+			// Check if this path has just reached DESTINATIONS
+			if (path.Nodes.Last().Id == Target.Id) return path;
 
-            if (path.Nodes.Last().Outgoing.Count == 0)
-            {
-                // No path to target from here
-                return path;
-            }
+			if (path.Nodes.Last().Outgoing.Count == 0)
+			{
+				// No path to target from here
+				return path;
+			}
 
-            var resultPaths = new List<Path>();
-            foreach (var edge in path.Nodes.Last().Outgoing)
-            {
-                // Check that edge doesn't lead to already-visited node
-                if (path.Nodes.Exists(n => n.Id == edge.To.Id)) continue;
+			var resultPaths = new List<Path>();
+			foreach (var edge in path.Nodes.Last().Outgoing)
+			{
+				// Check that edge doesn't lead to already-visited node
+				if (path.Nodes.Exists(n => n.Id == edge.To.Id)) continue;
 
-                // Update recurisvely used path copy
-                var copy = path.Copy();
-                MinimumCut.Add(edge.To);
-                if (edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
+				// Update recurisvely used path copy
+				var copy = path.Copy();
+				MinimumCut.Add(edge.To);
+				if (edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
 
-                // Update set of reached Nodes
-                copy.Nodes.Add(edge.To);
+				// Update set of reached Nodes
+				copy.Nodes.Add(edge.To);
 
-                // Store result of recursion
-                resultPaths.Add(FindResidualPath(copy));
-            }
+				// Store result of recursion
+				resultPaths.Add(FindResidualPath(copy));
+			}
 
-            Path res = null;
-            foreach (var resPath in resultPaths)
-            {
-                if (resPath.Nodes.Last().Id != Target.Id) continue;
+			Path res = null;
+			foreach (var resPath in resultPaths)
+			{
+				if (resPath.Nodes.Last().Id != Target.Id) continue;
 
-                if (res == null) res = resPath;
-                else if (resPath.Bottleneck > res.Bottleneck) // Want the highest bottleneck
-                {
-                    res = resPath;
-                }
-            }
+				if (res == null) res = resPath;
+				else if (resPath.Bottleneck > res.Bottleneck) // Want the highest bottleneck
+				{
+					res = resPath;
+				}
+			}
 
-            return res;
-        }
-    }
+			return res;
+		}
+	}
 
 	public class Parser
 	{
@@ -202,11 +200,7 @@ namespace FlowBehindEnemyLines
 			int n = int.Parse(contentArray[0]);
 			for (int i = 1; i <= n; i++)
 			{ // Parse each node, and place them in the graph
-				graph.Nodes.Add(new Node()
-				{
-					Name = contentArray[i],
-					Id = i - 1
-				});
+				graph.Nodes.Add(new Node(i - 1, contentArray[i]));
 
 				// Test
 				//Console.WriteLine("Node: " + contentArray[i] + ", " + (i - 1));
