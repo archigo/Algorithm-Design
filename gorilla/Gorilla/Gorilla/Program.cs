@@ -71,7 +71,7 @@ namespace Gorilla
             if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
 
             // Check out of bounds
-            if (idx1 == -1 || idx2 == -1) return Tuple.Create(0, ""); // "****"
+            if (idx1 == -1 || idx2 == -1) return Tuple.Create(0, "");
 
             var char1 = First[idx1];
             var char2 = Second[idx2];
@@ -90,7 +90,6 @@ namespace Gorilla
                     ? Tuple.Create(exchangeCost, "" + char2)
                     : Tuple.Create(minusCost, "*");
                 Cache.Add(Tuple.Create(idx1, idx2), res);
-                //Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, res.Item1, res.Item2);
                 return res;
             }
 
