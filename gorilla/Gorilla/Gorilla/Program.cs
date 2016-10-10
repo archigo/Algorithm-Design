@@ -21,74 +21,102 @@ namespace Gorilla
         public static string Second { get; set; }
         public static Dictionary<Tuple<int, int>, Tuple<int, string>> Cache { get; set; } = new Dictionary<Tuple<int, int>, Tuple<int, string>>();
 
-
+        public static int CountCaches { get; set; }
         static void Main(string[] args)
         {
-            First = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
-            Second = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            string Human = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            string HumanSickle = "VHLTPVEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            string Gorilla = "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFKLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+            string SpiderMonkey = "VHLTGEEKAAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMSNPKVKAHGKKVLGAFSDGLAHLDNLKGTFAQLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPQLQAAYQKVVAGVANALAHKYH";
+            string Horse = "VQLSGEEKAAVLALWDKVNEEEVGGEALGRLLVVYPWTQRFFDSFGDLSNPGAVMGNPKVKAHGKKVLHSFGEGVHHLDNLKGTFAALSELHCDKLHVDPENFRLLGNVLVVVLARHFGKDFTPELQASYQKVVAGVANALAHKYH";
+            string Deer = "MLTAEEKAAVTGFWGKVDVDVVGAQALGRLLVVYPWTQRFFQHFGNLSSAGAVMNNPKVKAHGKRVLDAFTQGLKHLDDLKGAFAQLSGLHCNKLHVNPQNFRLLGNVLALVVARNFGGQFTPNVQALFQKVVAGVANALAHKYH";
+            string Pig = "VHLSAEEKEAVLGLWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSNADAVMGNPKVKAHGKKVLQSFSDGLKHLDNLKGTFAKLSELHCDQLHVDPENFRLLGNVIVVVLARRLGHDFNPDVQAAFQKVVAGVANALAHKYH";
+            string Cow = "MLTAEEKAAVTAFWGKVKVDEVGGEALGRLLVVYPWTQRFFESFGDLSTADAVMNNPKVKAHGKKVLDSFSNGMKHLDDLKGTFAALSELHCDKLHVDPENFKLLGNVLVVVLARNFGKEFTPVLQADFQKVVAGVANALAHRYH";
+            string Gull = "VHWSAEEKQLITGLWGKVNVADCGAEALARLLIVYPWTQRFFASFGNLSSPTAINGNPMVRAHGKKVLTSFGEAVKNLDNIKNTFAQLSELHCDKLHVDPENFRLLGDILIIVLAAHFAKDFTPDSQAAWQKLVRVVAHALARKYH";
+            string Trout = "VEWTDAEKSTISAVWGKVNIDEIGPLALARVLIVYPWTQRYFGSFGNVSTPAAIMGNPKVAAHGKVVCGALDKAVKNMGNILATYKSLSETHANKLFVDPDNFRVLADVLTIVIAAKFGASFTPEIQATWQKFMKVVVAAMGSRYF";
+            string Rockcod = "VEWTDKERSIISDIFSHMDYDDIGPKALSRCLIVYPWTQRHFSGFGNLYNAEAIIGNANVAAHGIKVLHGLDRGVKNMDNIAATYADLSTLHSEKLHVDPDNFKLLSDCITIVLAAKMGHAFTAETQGAFQKFLAVVVSALGKQYH";
+            string Lamprey = "PIVDTGSVAPLSAAEKTKIRSAWAPVYSTYETSGVDILVKFFTSTPAAQEFFPKFKGLTTADELKKSADVRWHAERIINAVDDAVASMDDTEKMSMKLRNLSGKHAKSFQVDPEYFKVLAAVIADTVAAGDAGFEKLMSMICILLRSAY";
+            string SeaCucumber = "XGGTLAIQAQGDLTLAQKKIVRKTWHQLMRNKTSFVTDVFIRIFAYDPSAQNKFPQMAGMSASQLRSSRQMQAHAIRVSSIMSEYVEELDSDILPELLATLARTHDLNKVGADHYNLFAKVLMEALQAELGSDFNEKTRDAWAKAFSVVQAVLLVKHG";
+
+            Second = SeaCucumber;
+            First = SeaCucumber;
             if (args.Length == 2)
             {
-
-                if (args[0].Length > args[1].Length)
-                {
-                    First = args[0];
-                    var stars = args[1].Length - args[0].Length;
-                    Second = new StringBuilder().Append('*', stars).Append(args[1]).ToString();
-                }
-                if (args[0].Length < args[1].Length)
-                {
-                    First = args[1];
-                    var stars = args[0].Length - args[1].Length;
-                    Second = new StringBuilder().Append('*', stars).Append(args[0]).ToString();
-                }
-
                 First = args[0];
                 Second = args[1];
 
 
             }
 
-            // Parse Cost-Matrix
-            var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\"),
-                    string.Format(@"data\{0}", "BLOSUM62.txt")));
-            ParseCostMatrix(contents);
+            Console.WriteLine("\n\nINPUT\n1: {0}\n2: {1}",First,Second);
 
-            // Get some input
-            
-            // Result: Should be "K-AK" but is "KAK*"
-            // Do work given last valid indexes
+
+            var stars = Math.Abs(First.Length - Second.Length);
+
+            if (First.Length < Second.Length)
+                First = new StringBuilder().Append('*', stars).Append(First).ToString();
+            else
+                Second = new StringBuilder().Append('*', stars).Append(Second).ToString();
+
+            // Parse Cost-
+            try
+            {
+                // works from IDE
+                var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\"),string.Format(@"data\{0}", "BLOSUM62.txt")));
+                ParseCostMatrix(contents);
+            }
+            catch(Exception e)
+            {
+                // wworks from CMD
+                var contents = File.ReadAllLines(Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\"),string.Format(@"data\{0}", "BLOSUM62.txt")));
+                ParseCostMatrix(contents);
+            }
+
+            Console.WriteLine("\n\nOUTPUT");
+
             var res = DoWork(First.Length - 1, Second.Length - 1);
-            Console.WriteLine("Based on: ");
-            Console.WriteLine("Cost: {0}\n{1}", res.Item1, res.Item2);
+            Console.WriteLine("Ordered, cost: {0}\n{1}", res.Item1, res.Item2);
+
+            var temp = First;
+            First = Second;
+            Second = temp;
+
+            res = DoWork(First.Length - 1, Second.Length - 1);
+            Console.WriteLine("Reveresed order, cost: {0}\n{1}", res.Item1, res.Item2);
 
             Console.ReadLine();
         }
-
+        
         // "OPT"
         private static Tuple<int, string> DoWork(int idx1, int idx2)
         {
+            // Try to get from cache
             Tuple<int, string> result;
-            if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result)) return result;
+            if (Cache.TryGetValue(Tuple.Create(idx1, idx2), out result))
+                return result;
 
             // Check out of bounds
-            if (idx1 == -1 || idx2 == -1) return Tuple.Create(0, "");
+            if (idx1 == -1 || idx2 == -1)
+                return Tuple.Create(0, ""); // 
 
             var char1 = First[idx1];
             var char2 = Second[idx2];
 
             int costIdx1;
-            if(!IdToIndex.TryGetValue(char1.ToString(), out costIdx1)) throw new Exception("Oh no, we failed!");
+            if (!IdToIndex.TryGetValue(char1.ToString(), out costIdx1)) throw new Exception("Oh no, we failed!");
             int costIdx2;
             if (!IdToIndex.TryGetValue(char2.ToString(), out costIdx2)) throw new Exception("Oh no, we failed!");
-            
+
             var minusCost = -4; // Could look up in matrix under "*" and char2
             var exchangeCost = CostMatrix[costIdx1][costIdx2];
 
+            
             if (idx1 == 0 && idx2 == 0)
             {
                 var res = exchangeCost >= minusCost
                     ? Tuple.Create(exchangeCost, "" + char2)
                     : Tuple.Create(minusCost, "*");
+
                 Cache.Add(Tuple.Create(idx1, idx2), res);
                 return res;
             }
@@ -97,32 +125,24 @@ namespace Gorilla
             var replace = DoWork(idx1 - 1, idx2 - 1);
             var minus2 = DoWork(idx1 - 1, idx2);
 
-            //if (minus1.Item2.Equals("out")) minus1 = Tuple.Create(-999, "out");
-            //if (minus2.Item2.Equals("out")) minus2 = Tuple.Create(-999, "out");
-            //if (replace.Item2.Equals("out")) replace = Tuple.Create(-999, "out");
-
-            var best =  Math.Max(minus1.Item1+minusCost, Math.Max(replace.Item1+exchangeCost, minus2.Item1+minusCost));
+            // best match for the current indexes
+            var best = Math.Max(minus1.Item1 + minusCost, Math.Max(replace.Item1 + exchangeCost, minus2.Item1 + minusCost));
             string part;
-            if (minus1.Item1 == best)
-            {
-                part = minus1.Item2 + "*";
-                //Console.WriteLine("minus 1! (Iterating string 2)");
-            }
-            else if (replace.Item1+exchangeCost == best)
-            {
-                part = replace.Item2 + char2;
-                //Console.WriteLine("Exchanging {0} with {1}", char1, char2);
-            }
-            else
-            {
-                part = minus2.Item2 + "*";
-                //Console.WriteLine("minus 2! (Iterating string 1)");
-            }
 
-            // Cache idx + "part"
+            //append new character based on best result
+            if (replace.Item1 + exchangeCost == best)           
+                part = replace.Item2 + char2;
+            else if(minus1.Item1 + minusCost == best)
+                part = minus1.Item2 + "*";
+            else if (minus2.Item1 + minusCost == best)
+                part = minus2.Item2 + "*";
+            // or throw exception if somehow none of the values matches the best one
+            else throw new Exception("Oh no, we failed!");
+
+            // Cache idx1 and idx2 + "part"
             var costAndPart = Tuple.Create(best, part);
             Cache.Add(Tuple.Create(idx1, idx2), costAndPart);
-            //Console.WriteLine("Cached: ({0}, {1}) --> {2}, {3}", idx1, idx2, best, part);
+
             return costAndPart;
         }
 
