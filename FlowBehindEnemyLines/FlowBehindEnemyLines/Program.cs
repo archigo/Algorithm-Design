@@ -9,20 +9,20 @@ using System.Xml.Linq;
 
 namespace FlowBehindEnemyLines
 {
-	public class Edge
-	{
-		public int FromId { get; set; }
-		public int ToId { get; set; }
-		public int Capacity { get; set; }
-		public int Flow { get; set; }
+    public class Edge
+    {
+        public int FromId { get; set; }
+        public int ToId { get; set; }
+        public int Capacity { get; set; }
+        public int Flow { get; set; }
 
-		public Edge(int fromId, int toId, int capacity)
-		{
-			FromId = fromId;
-			ToId = toId;
-			Capacity = capacity;
-		}
-	}
+        public Edge(int fromId, int toId, int capacity)
+        {
+            FromId = fromId;
+            ToId = toId;
+            Capacity = capacity;
+        }
+    }
 
     public class Node
     {
@@ -42,43 +42,43 @@ namespace FlowBehindEnemyLines
         }
     }
 
-	public class Graph
-	{
-		public List<Node> Nodes = new List<Node>();
-		public int FlowValue { get; set; } // Used as result of main-graph
-		public List<Node> MinCut = new List<Node>();
+    public class Graph
+    {
+        public List<Node> Nodes = new List<Node>();
+        public int FlowValue { get; set; } // Used as result of main-graph
+        public List<Node> MinCut = new List<Node>();
 
-		public Graph Copy()
-		{
-			return new Graph
-			{
-				Nodes = Nodes.Select(
-					n =>
-						new Node(n.Id, n.Name)
-						{
-							Outgoing = n.Outgoing.Select(e => new Edge(e.FromId, e.ToId, e.Capacity)).ToList()
-						}).ToList()
-			};
-		}
+        public Graph Copy()
+        {
+            return new Graph
+            {
+                Nodes = Nodes.Select(
+                    n =>
+                        new Node(n.Id, n.Name)
+                        {
+                            Outgoing = n.Outgoing.Select(e => new Edge(e.FromId, e.ToId, e.Capacity)).ToList()
+                        }).ToList()
+            };
+        }
 
-		public override string ToString()
-		{
-			var t = "";
-			foreach (Node node in Nodes)
-			{
-				foreach (Edge edge in node.Outgoing)
-				{
-					t += Nodes.Find(n => n.Id == edge.FromId).Name + " -> " + Nodes.Find(n => n.Id == edge.ToId).Name + Environment.NewLine;
-				}
-			}
-			return t;
-		}
-	}
+        public override string ToString()
+        {
+            var t = "";
+            foreach (Node node in Nodes)
+            {
+                foreach (Edge edge in node.Outgoing)
+                {
+                    t += Nodes.Find(n => n.Id == edge.FromId).Name + " -> " + Nodes.Find(n => n.Id == edge.ToId).Name + Environment.NewLine;
+                }
+            }
+            return t;
+        }
+    }
 
-	public class Program
-	{
-		public static void Main(string[] args)
-		{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
 #if DEBUG
             var directoryPath = "../../network.txt";
 #else
@@ -86,7 +86,7 @@ namespace FlowBehindEnemyLines
 #endif
 
             var graph = new Parser(directoryPath).Parse();
-			var residualGraph = graph.Copy();
+            var residualGraph = graph.Copy();
 
 #if DEBUG
             var alg = new Algorithm(graph, residualGraph,
@@ -100,8 +100,8 @@ namespace FlowBehindEnemyLines
 
             alg.DoStuff();
 
-		    Console.Read();
-		}
+            Console.Read();
+        }
     }
 
     public class Path
@@ -119,23 +119,23 @@ namespace FlowBehindEnemyLines
         }
     }
 
-	public class Algorithm
-	{
-		public Graph Original { get; set; }
-		public Graph Residual { get; set; }
+    public class Algorithm
+    {
+        public Graph Original { get; set; }
+        public Graph Residual { get; set; }
 
         public HashSet<Node> MinimumCut { get; set; } = new HashSet<Node>();
 
         public int SourceId { get; set; }
         public int TargetId { get; set; }
 
-		public Algorithm(Graph original, Graph residual, int sourceId, int targetId)
-		{
-			Original = original;
-			Residual = residual;
-			SourceId = sourceId;
-			TargetId = targetId;
-		}
+        public Algorithm(Graph original, Graph residual, int sourceId, int targetId)
+        {
+            Original = original;
+            Residual = residual;
+            SourceId = sourceId;
+            TargetId = targetId;
+        }
 
         public void DoStuff()
         {
@@ -146,22 +146,75 @@ namespace FlowBehindEnemyLines
             var sourceNode = Original.Nodes.Find(n => n.Id == SourceId);
             var sourceNodeList = new List<Node>();
             sourceNodeList.Add(sourceNode);
-            var pathStartingPoint = new Path { Nodes = sourceNodeList, Bottleneck = int.MaxValue };
-            var path = FindResidualPath(pathStartingPoint);
+
+            Path path = null; ;
+            do
+            {
+                MinimumCut.Clear();
+                MinimumCut.Add(sourceNode);
+                var pathStartingPoint = new Path { Nodes = sourceNodeList, Bottleneck = int.MaxValue };
+                path = FindResidualPath(pathStartingPoint);
 
 #if DEBUG
-            if (path != null)
-            {
-                Console.WriteLine("Path found:");
-                foreach (var node in path.Nodes)
+                if (path != null)
                 {
-                    if (node == path.Nodes.First()) Console.Write(node.Name);
-                    else Console.Write(" --> {0}", node.Name);
+                    Console.WriteLine("Path found:");
+                    foreach (var node in path.Nodes)
+                    {
+                        if (node == path.Nodes.First()) Console.Write(node.Name);
+                        else Console.Write(" --> {0}", node.Name);
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine("Bottleneck: {0}\n\n", path.Bottleneck);
+                    uPDATE_EDGES(path);
                 }
-                Console.WriteLine();
-                Console.WriteLine("Bottleneck: {0}", path.Bottleneck);
-            }
+                else
+                {
+
+                    Console.Write("Min cut: ");
+                    MinimumCut.ToList().ForEach(x => Console.Write("{0}, ", x.Name));
+                    Console.WriteLine();
+                }
 #endif
+
+            } while (path != null);
+
+
+        }
+
+        private void uPDATE_EDGES(Path path)
+        {
+            for (int i = 0; i < path.Nodes.Count - 1; i++)
+            {
+                Node from = path.Nodes[i];
+                Node to = path.Nodes[i + 1];
+
+                Edge foundEdge = from.Outgoing.Where(x => x.ToId == to.Id).First();
+
+                // no more flow
+                if (foundEdge.Capacity == path.Bottleneck)
+                {
+                    // remove edge entirely
+                    from.Outgoing.Remove(foundEdge);
+                }
+                else
+                {
+                    foundEdge.Capacity -= path.Bottleneck;
+                }
+
+                // add reverse edge
+                Edge reverseEdge = to.Outgoing.Where(x => x.ToId == from.Id).FirstOrDefault();
+                if (reverseEdge != null)
+                {
+                    // increase capacity of reversed path
+                    reverseEdge.Capacity += path.Bottleneck;
+                }
+                else
+                    to.Outgoing.Add(new Edge(to.Id, from.Id, path.Bottleneck));
+
+
+            }
+
 
         }
 
@@ -217,61 +270,61 @@ namespace FlowBehindEnemyLines
         }
     }
 
-	public class Parser
-	{
-		public string FilePath { get; set; }
+    public class Parser
+    {
+        public string FilePath { get; set; }
 
-		public Parser(string path)
-		{
-			FilePath = path;
-		}
+        public Parser(string path)
+        {
+            FilePath = path;
+        }
 
-		public Graph Parse()
-		{
-			var contentArray = File.ReadAllLines(FilePath);
+        public Graph Parse()
+        {
+            var contentArray = File.ReadAllLines(FilePath);
 
-			var graph = new Graph();
+            var graph = new Graph();
 
-			// Parse the first line to get the number of nodes
-			int n = int.Parse(contentArray[0]);
-			for (int i = 1; i <= n; i++)
-			{ // Parse each node, and place them in the graph
-				graph.Nodes.Add(new Node(i - 1, contentArray[i]));
+            // Parse the first line to get the number of nodes
+            int n = int.Parse(contentArray[0]);
+            for (int i = 1; i <= n; i++)
+            { // Parse each node, and place them in the graph
+                graph.Nodes.Add(new Node(i - 1, contentArray[i]));
 
-				// Test
-				//Console.WriteLine("Node: " + contentArray[i] + ", " + (i - 1));
-			}
+                // Test
+                //Console.WriteLine("Node: " + contentArray[i] + ", " + (i - 1));
+            }
 
-			// Parse the next line after nodes to get the number of edges
-			int m = int.Parse(contentArray[n + 1]);
-			for (int i = n + 2; i <= n + 1 + m; i++)
-			{ // Parse each edge
-			  // Get u, v and c
-				var lineArray = contentArray[i].Split(' ');
-				// u is the index of the first node
-				int u = int.Parse(lineArray[0]);
-				// v is the index of the second node
-				int v = int.Parse(lineArray[1]);
-				// c is the capacity of the edge
-				int c = int.Parse(lineArray[2]);
+            // Parse the next line after nodes to get the number of edges
+            int m = int.Parse(contentArray[n + 1]);
+            for (int i = n + 2; i <= n + 1 + m; i++)
+            { // Parse each edge
+              // Get u, v and c
+                var lineArray = contentArray[i].Split(' ');
+                // u is the index of the first node
+                int u = int.Parse(lineArray[0]);
+                // v is the index of the second node
+                int v = int.Parse(lineArray[1]);
+                // c is the capacity of the edge
+                int c = int.Parse(lineArray[2]);
 
-				// Get nodes for from and to
-				Node from = graph.Nodes.Find(node => node.Id == u);
-				Node to = graph.Nodes.Find(node => node.Id == v);
+                // Get nodes for from and to
+                Node from = graph.Nodes.Find(node => node.Id == u);
+                Node to = graph.Nodes.Find(node => node.Id == v);
 
-				// Create the edge
-				var edge = new Edge(from.Id, to.Id, c);
-				// Add edge as outgoing on the from node
-				from.Outgoing.Add(edge);
+                // Create the edge
+                var edge = new Edge(from.Id, to.Id, c);
+                // Add edge as outgoing on the from node
+                from.Outgoing.Add(edge);
 
-				// Test
-				//Console.WriteLine("Edge: " + lineArray[0] + " " + lineArray[1] + " " + lineArray[2]);
-			}
+                // Test
+                //Console.WriteLine("Edge: " + lineArray[0] + " " + lineArray[1] + " " + lineArray[2]);
+            }
 
-			// Test
-			//Console.Write(graph.ToString());
+            // Test
+            //Console.Write(graph.ToString());
 
-			return graph;
-		}
-	}
+            return graph;
+        }
+    }
 }
