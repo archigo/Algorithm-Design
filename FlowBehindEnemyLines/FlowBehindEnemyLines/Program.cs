@@ -79,16 +79,26 @@ namespace FlowBehindEnemyLines
 	{
 		public static void Main(string[] args)
 		{
-			var directoryPath = "../../rail.txt";
+#if DEBUG
+            var directoryPath = "../../network.txt";
+#else
+            var directoryPath = "../../rail.txt";
+#endif
 
-			var graph = new Parser(directoryPath).Parse();
+            var graph = new Parser(directoryPath).Parse();
 			var residualGraph = graph.Copy();
 
-			var alg = new Algorithm(graph, residualGraph,
+#if DEBUG
+            var alg = new Algorithm(graph, residualGraph,
+                graph.Nodes.Find(n => n.Name == "S").Id,
+                graph.Nodes.Find(n => n.Name == "T").Id);
+#else
+            var alg = new Algorithm(graph, residualGraph,
 				graph.Nodes.Find(n => n.Name == "ORIGINS").Id,
 				graph.Nodes.Find(n => n.Name == "DESTINATIONS").Id);
+#endif
 
-			alg.DoStuff();
+            alg.DoStuff();
 
 		    Console.Read();
 		}
