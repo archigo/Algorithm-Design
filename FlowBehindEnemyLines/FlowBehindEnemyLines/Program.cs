@@ -22,6 +22,16 @@ namespace FlowBehindEnemyLines
             ToId = toId;
             Capacity = capacity;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ---[{1}]--> {2}", FromId, Capacity, ToId);
+        }
+
+        public Edge Copy()
+        {
+            return new Edge(FromId, ToId, Capacity);
+        }
     }
 
     public class Node
@@ -39,6 +49,11 @@ namespace FlowBehindEnemyLines
         public override int GetHashCode()
         {
             return Id + Name.GetHashCode();
+        }
+
+        public Node Copy()
+        {
+            return new Node(Id, Name) { Outgoing = Outgoing.Select(x => x.Copy()).ToList() };
         }
     }
 
@@ -87,24 +102,19 @@ namespace FlowBehindEnemyLines
     {
         public static void Main(string[] args)
         {
-#if DEBUG
-            var directoryPath = "../../network.txt";
-#else
+            //var directoryPath = "../../network.txt";
             var directoryPath = "../../rail.txt";
-#endif
 
             var graph = new Parser(directoryPath).Parse();
             var residualGraph = graph.Copy();
+            
+            //var alg = new Algorithm(graph, residualGraph,
+            //    graph.Nodes.Find(n => n.Name == "S").Id,
+            //    graph.Nodes.Find(n => n.Name == "T").Id);
 
-#if DEBUG
-            var alg = new Algorithm(graph, residualGraph,
-                graph.Nodes.Find(n => n.Name == "S").Id,
-                graph.Nodes.Find(n => n.Name == "T").Id);
-#else
             var alg = new Algorithm(graph, residualGraph,
 				graph.Nodes.Find(n => n.Name == "ORIGINS").Id,
 				graph.Nodes.Find(n => n.Name == "DESTINATIONS").Id);
-#endif
 
             alg.DoStuff();
 
@@ -167,16 +177,26 @@ namespace FlowBehindEnemyLines
                 if (path != null)
                 {
                     maxFlow += path.Bottleneck;
-#if DEBUG
-                    Console.WriteLine(string.Format("Path with bottleneck of {0} found.", path.Bottleneck));
-#endif
                     UpdateResidualEdges(path);
                 }
                 else
                 {
-                    var minCutString = string.Join(", ", MinimumCut.Select(x => x.Name));
+                    var minCutString = string.Join(", ", MinimumCut.Select(x => string.Format("{0} ({1})", x.Id, x.Name)));
                     Console.WriteLine(string.Format(@"Minimum Cut: {0}", minCutString));
                     Console.WriteLine(string.Format("Max Flow: {0}", maxFlow));
+                    // TODO: Write edges leaving the mincut!
+                    Console.WriteLine("Edges leaving the minimum cut:");
+                    foreach (var node in MinimumCut)
+                    {
+                        var nodeInOriginal = Original.Nodes.Find(n => n.Id == node.Id);
+                        foreach (var edge in nodeInOriginal.Outgoing)
+                        {
+                            if (!MinimumCut.Contains(Residual.Nodes.Find(x => x.Id == edge.ToId)))
+                            {
+                                Console.WriteLine(edge.FromId + " " + edge.ToId + " " + edge.Capacity);
+                            }
+                        }
+                    }
                 }
             } while (path != null);
         }
@@ -230,15 +250,16 @@ namespace FlowBehindEnemyLines
                 // Check that edge doesn't lead to already-visited node
                 if (path.Nodes.Exists(n => n.Id == edge.ToId)) continue;
 
-                var node = Original.Nodes.Find(n => n.Id == edge.ToId);
+                var node = Residual.Nodes.Find(n => n.Id == edge.ToId);
+
+                // Update set of reached Nodes in this particular path search
+                MinimumCut.Add(node);
 
                 // Update recurisvely used path copy
                 var copy = path.Copy();
                 copy.Nodes.Add(node);
                 if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
 
-                // Update set of reached Nodes
-                MinimumCut.Add(node);
 
                 // Check whether target was found and return path if that is the case
                 var resPath = FindResidualPath(copy);
