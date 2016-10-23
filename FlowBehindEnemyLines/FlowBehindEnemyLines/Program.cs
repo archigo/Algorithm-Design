@@ -85,9 +85,18 @@ namespace FlowBehindEnemyLines
 
     public class Program
     {
+        private static readonly DateTime Jan1st1970 = new DateTime
+    (1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static long CurrentTimeMillis()
+        {
+            return (long)(DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
+        }
+
         public static void Main(string[] args)
         {
 #if DEBUG
+
             var directoryPath = "../../network.txt";
 #else
             var directoryPath = "../../rail.txt";
@@ -106,7 +115,11 @@ namespace FlowBehindEnemyLines
 				graph.Nodes.Find(n => n.Name == "DESTINATIONS").Id);
 #endif
 
-            alg.DoStuff();
+            long start = CurrentTimeMillis();
+
+        	alg.DoStuff();
+            long end = CurrentTimeMillis();
+            Console.WriteLine("Duration {0} ms", (end - start));
 
             Console.Read();
         }
@@ -145,21 +158,25 @@ namespace FlowBehindEnemyLines
             TargetId = targetId;
         }
 
+        public Algorithm(Graph original, int sourceId, int targetId)
+        {
+            Original = original;
+            Residual = original.Copy();
+            SourceId = sourceId;
+            TargetId = targetId;
+        }
+
         public void DoStuff()
         {
-            // Reset MinimumCut
-            MinimumCut.Clear();
             var sourceNode = Residual.Nodes.Find(n => n.Id == SourceId);
+            MinimumCut.Clear();
 
             var round = 1;
             var maxFlow = 0;
 
             Path path = null;
             do
-            {
-                // Reset minimum cut (Will be final result's minimum cut if no path to target can be found at some stage)
-                MinimumCut.Clear();
-                MinimumCut.Add(sourceNode);
+            {          
 
                 // Find some path to target
                 var pathStartingPoint = new Path { Nodes = new List<Node> { sourceNode }, Bottleneck = int.MaxValue };
@@ -167,6 +184,7 @@ namespace FlowBehindEnemyLines
                 if (path != null)
                 {
                     maxFlow += path.Bottleneck;
+
 #if DEBUG
                     Console.WriteLine(string.Format("Path with bottleneck of {0} found.", path.Bottleneck));
 #endif
@@ -178,6 +196,7 @@ namespace FlowBehindEnemyLines
                     Console.WriteLine(string.Format(@"Minimum Cut: {0}", minCutString));
                     Console.WriteLine(string.Format("Max Flow: {0}", maxFlow));
                 }
+
             } while (path != null);
         }
 
@@ -186,10 +205,11 @@ namespace FlowBehindEnemyLines
             for (int i = 0; i < path.Nodes.Count - 1; i++)
             {
                 Node from = path.Nodes[i];
+                MinimumCut.Add(from);
                 Node to = path.Nodes[i + 1];
 
                 Edge foundEdge = from.Outgoing.Where(x => x.ToId == to.Id).First();
-                
+
                 if (foundEdge.Capacity == path.Bottleneck) // no more flow
                 {
                     // remove edge entirely
@@ -222,23 +242,20 @@ namespace FlowBehindEnemyLines
             if (path.Nodes.Last().Outgoing.Count == 0)
             {
                 // No path to target from here
-                return path;
+                return null;
             }
-            
+
             foreach (var edge in path.Nodes.Last().Outgoing)
             {
                 // Check that edge doesn't lead to already-visited node
                 if (path.Nodes.Exists(n => n.Id == edge.ToId)) continue;
 
-                var node = Original.Nodes.Find(n => n.Id == edge.ToId);
+                var node = Residual.Nodes.Find(n => n.Id == edge.ToId);
 
                 // Update recurisvely used path copy
                 var copy = path.Copy();
                 copy.Nodes.Add(node);
                 if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
-
-                // Update set of reached Nodes
-                MinimumCut.Add(node);
 
                 // Check whether target was found and return path if that is the case
                 var resPath = FindResidualPath(copy);
@@ -247,7 +264,7 @@ namespace FlowBehindEnemyLines
             return null;
         }
 
-#region LEGACY CODE (LESSON LEARNED: DON'T ATTEMPT TO FIND THE BEST BOTTLENECK OF ALL PATHS TO TARGET... (VEEERY EXPENSIVE))
+        #region LEGACY CODE (LESSON LEARNED: DON'T ATTEMPT TO FIND THE BEST BOTTLENECK OF ALL PATHS TO TARGET... (VEEERY EXPENSIVE))
         //private Path FindResidualPath(Path path)
         //{
         //    // Check if this path has just reached DESTINATIONS
@@ -256,7 +273,7 @@ namespace FlowBehindEnemyLines
         //    if (path.Nodes.Last().Outgoing.Count == 0)
         //    {
         //        // No path to target from here
-        //        return path;
+        //        return null;
         //    }
 
         //    var resultPaths = new List<Path>();
@@ -265,15 +282,12 @@ namespace FlowBehindEnemyLines
         //        // Check that edge doesn't lead to already-visited node
         //        if (path.Nodes.Exists(n => n.Id == edge.ToId)) continue;
 
-        //        var node = Original.Nodes.Find(n => n.Id == edge.ToId);
+        //        var node = Residual.Nodes.Find(n => n.Id == edge.ToId);
 
         //        // Update recurisvely used path copy
         //        var copy = path.Copy();
         //        copy.Nodes.Add(node);
         //        if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
-
-        //        // Update set of reached Nodes
-        //        MinimumCut.Add(node);
 
         //        // Store result of recursion
         //        var resPath = FindResidualPath(copy);
@@ -294,7 +308,7 @@ namespace FlowBehindEnemyLines
 
         //    return res;
         //}
-#endregion
+        #endregion
     }
 
     public class Parser
