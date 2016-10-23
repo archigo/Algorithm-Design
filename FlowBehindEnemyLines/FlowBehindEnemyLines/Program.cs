@@ -149,9 +149,7 @@ namespace FlowBehindEnemyLines
         {
             // Reset MinimumCut
             MinimumCut.Clear();
-            var sourceNode = Original.Nodes.Find(n => n.Id == SourceId);
-            
-            Console.WriteLine("Original graph:\n" + Original.ToString());
+            var sourceNode = Residual.Nodes.Find(n => n.Id == SourceId);
 
             var round = 1;
             var maxFlow = 0;
@@ -159,35 +157,26 @@ namespace FlowBehindEnemyLines
             Path path = null;
             do
             {
-                Console.WriteLine("___________________________________\n" + "ROUND " + round++);
-                Console.WriteLine("Residual graph:\n" + Original.ToString());
+                // Reset minimum cut (Will be final result's minimum cut if no path to target can be found at some stage)
                 MinimumCut.Clear();
                 MinimumCut.Add(sourceNode);
+
+                // Find some path to target
                 var pathStartingPoint = new Path { Nodes = new List<Node> { sourceNode }, Bottleneck = int.MaxValue };
-                //Console.WriteLine("Trying to find a path...");
                 path = FindResidualPath(pathStartingPoint);
                 if (path != null)
                 {
-#if DEBUG
-                    Console.WriteLine("Path found:");
-                    foreach (var node in path.Nodes)
-                    {
-                        if (node == path.Nodes.First()) Console.Write(node.Name);
-                        else Console.Write(" --> {0}", node.Name);
-                    }
-                    Console.WriteLine();
-                    Console.WriteLine("Bottleneck: {0}\n\n", path.Bottleneck);
-#endif
                     maxFlow += path.Bottleneck;
-                    Console.WriteLine(string.Format("Best path from {0}---[bottleneck: {1}]--->{2}", path.Nodes.First().Name, path.Bottleneck, path.Nodes.Last().Name));
+#if DEBUG
+                    Console.WriteLine(string.Format("Path with bottleneck of {0} found.", path.Bottleneck));
+#endif
                     UpdateResidualEdges(path);
                 }
                 else
                 {
-                    Console.Write("Min cut: ");
-                    MinimumCut.ToList().ForEach(x => Console.Write("{0}, ", x.Name));
-                    Console.WriteLine();
-                    Console.WriteLine("Max flow: " + maxFlow);
+                    var minCutString = string.Join(", ", MinimumCut.Select(x => x.Name));
+                    Console.WriteLine(string.Format(@"Minimum Cut: {0}", minCutString));
+                    Console.WriteLine(string.Format("Max Flow: {0}", maxFlow));
                 }
             } while (path != null);
         }
@@ -235,28 +224,7 @@ namespace FlowBehindEnemyLines
                 // No path to target from here
                 return path;
             }
-
-            var resultPaths = new List<Path>();
-            //Parallel.ForEach(path.Nodes.Last().Outgoing, (edge) =>
-            //    {
-            //        // Check that edge doesn't lead to already-visited node
-            //        if (path.Nodes.Exists(n => n.Id == edge.ToId)) return;
-
-            //        var node = Original.Nodes.Find(n => n.Id == edge.ToId);
-
-            //        // Update recurisvely used path copy
-            //        var copy = path.Copy();
-            //        copy.Nodes.Add(node);
-            //        if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
-
-            //        // Update set of reached Nodes
-            //        MinimumCut.Add(node);
-
-            //        // Store result of recursion
-            //        var resPath = FindResidualPath(copy);
-            //        if (resPath != null) resultPaths.Add(resPath);
-            //    }
-            //);
+            
             foreach (var edge in path.Nodes.Last().Outgoing)
             {
                 // Check that edge doesn't lead to already-visited node
@@ -272,25 +240,61 @@ namespace FlowBehindEnemyLines
                 // Update set of reached Nodes
                 MinimumCut.Add(node);
 
-                // Store result of recursion
+                // Check whether target was found and return path if that is the case
                 var resPath = FindResidualPath(copy);
-                if (resPath != null) resultPaths.Add(resPath);
+                if (resPath != null && resPath.Nodes.Last().Id == TargetId) return resPath;
             }
-
-            Path res = null;
-            foreach (var resPath in resultPaths)
-            {
-                if (resPath.Nodes.Last().Id != TargetId) continue;
-
-                if (res == null) res = resPath;
-                else if (resPath.Bottleneck > res.Bottleneck) // Want the highest bottleneck
-                {
-                    res = resPath;
-                }
-            }
-
-            return res;
+            return null;
         }
+
+#region LEGACY CODE (LESSON LEARNED: DON'T ATTEMPT TO FIND THE BEST BOTTLENECK OF ALL PATHS TO TARGET... (VEEERY EXPENSIVE))
+        //private Path FindResidualPath(Path path)
+        //{
+        //    // Check if this path has just reached DESTINATIONS
+        //    if (path.Nodes.Last().Id == TargetId) return path;
+
+        //    if (path.Nodes.Last().Outgoing.Count == 0)
+        //    {
+        //        // No path to target from here
+        //        return path;
+        //    }
+
+        //    var resultPaths = new List<Path>();
+        //    foreach (var edge in path.Nodes.Last().Outgoing)
+        //    {
+        //        // Check that edge doesn't lead to already-visited node
+        //        if (path.Nodes.Exists(n => n.Id == edge.ToId)) continue;
+
+        //        var node = Original.Nodes.Find(n => n.Id == edge.ToId);
+
+        //        // Update recurisvely used path copy
+        //        var copy = path.Copy();
+        //        copy.Nodes.Add(node);
+        //        if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
+
+        //        // Update set of reached Nodes
+        //        MinimumCut.Add(node);
+
+        //        // Store result of recursion
+        //        var resPath = FindResidualPath(copy);
+        //        if (resPath != null) resultPaths.Add(resPath);
+        //    }
+
+        //    Path res = null;
+        //    foreach (var resPath in resultPaths)
+        //    {
+        //        if (resPath.Nodes.Last().Id != TargetId) continue;
+
+        //        if (res == null) res = resPath;
+        //        else if (resPath.Bottleneck > res.Bottleneck) // Want the highest bottleneck
+        //        {
+        //            res = resPath;
+        //        }
+        //    }
+
+        //    return res;
+        //}
+#endregion
     }
 
     public class Parser
@@ -311,11 +315,9 @@ namespace FlowBehindEnemyLines
             // Parse the first line to get the number of nodes
             int n = int.Parse(contentArray[0]);
             for (int i = 1; i <= n; i++)
-            { // Parse each node, and place them in the graph
+            {
+                // Parse each node, and place them in the graph
                 graph.Nodes.Add(new Node(i - 1, contentArray[i]));
-
-                // Test
-                //Console.WriteLine("Node: " + contentArray[i] + ", " + (i - 1));
             }
 
             // Parse the next line after nodes to get the number of edges
@@ -341,13 +343,7 @@ namespace FlowBehindEnemyLines
                 // Add edges
                 from.Outgoing.Add(fromEdge);
                 to.Outgoing.Add(toEdge);
-
-                // Test
-                //Console.WriteLine("Edge: " + lineArray[0] + " " + lineArray[1] + " " + lineArray[2]);
             }
-
-            // Test
-            //Console.Write(graph.ToString());
 
             return graph;
         }
