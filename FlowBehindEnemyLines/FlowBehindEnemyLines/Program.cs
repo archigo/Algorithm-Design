@@ -68,7 +68,15 @@ namespace FlowBehindEnemyLines
             {
                 foreach (Edge edge in node.Outgoing)
                 {
-                    t += Nodes.Find(n => n.Id == edge.FromId).Name + " -> " + Nodes.Find(n => n.Id == edge.ToId).Name + Environment.NewLine;
+                    // Detailed print:
+                    //t += Nodes.Find(n => n.Id == edge.FromId).Name + " --[" + edge.Capacity + "]--> " + Nodes.Find(n => n.Id == edge.ToId).Name + '\t';
+
+                    // Capacity print:
+                    t += edge.Capacity + "  \t";
+
+                    // Capacity print IF -1
+                    //if (edge.Capacity == -1)       // Confirmed: Same amount of -1 capacity edges through all iterations
+                    //    t += edge.Capacity + "  \t";
                 }
             }
             return t;
@@ -139,25 +147,27 @@ namespace FlowBehindEnemyLines
 
         public void DoStuff()
         {
-            // TODO: Find best path from Source to Target (BFS)
-
             // Reset MinimumCut
             MinimumCut.Clear();
             var sourceNode = Original.Nodes.Find(n => n.Id == SourceId);
-            var sourceNodeList = new List<Node>();
-            sourceNodeList.Add(sourceNode);
+            
+            Console.WriteLine("Original graph:\n" + Original.ToString());
 
-            Path path = null; ;
+            var round = 1;
+
+            Path path = null;
             do
             {
+                Console.WriteLine("___________________________________\n" + "ROUND " + round++);
+                Console.WriteLine("Residual graph:\n" + Original.ToString());
                 MinimumCut.Clear();
                 MinimumCut.Add(sourceNode);
-                var pathStartingPoint = new Path { Nodes = sourceNodeList, Bottleneck = int.MaxValue };
+                var pathStartingPoint = new Path { Nodes = new List<Node> { sourceNode }, Bottleneck = int.MaxValue };
+                //Console.WriteLine("Trying to find a path...");
                 path = FindResidualPath(pathStartingPoint);
-
-#if DEBUG
                 if (path != null)
                 {
+#if DEBUG
                     Console.WriteLine("Path found:");
                     foreach (var node in path.Nodes)
                     {
@@ -166,23 +176,20 @@ namespace FlowBehindEnemyLines
                     }
                     Console.WriteLine();
                     Console.WriteLine("Bottleneck: {0}\n\n", path.Bottleneck);
-                    uPDATE_EDGES(path);
+#endif
+                    Console.WriteLine(string.Format("Best path from {0}---[bottleneck: {1}]--->{2}", path.Nodes.First().Name, path.Bottleneck, path.Nodes.Last().Name));
+                    UpdateResidualEdges(path);
                 }
                 else
                 {
-
                     Console.Write("Min cut: ");
                     MinimumCut.ToList().ForEach(x => Console.Write("{0}, ", x.Name));
                     Console.WriteLine();
                 }
-#endif
-
             } while (path != null);
-
-
         }
 
-        private void uPDATE_EDGES(Path path)
+        private void UpdateResidualEdges(Path path)
         {
             for (int i = 0; i < path.Nodes.Count - 1; i++)
             {
@@ -190,16 +197,16 @@ namespace FlowBehindEnemyLines
                 Node to = path.Nodes[i + 1];
 
                 Edge foundEdge = from.Outgoing.Where(x => x.ToId == to.Id).First();
-
-                // no more flow
-                if (foundEdge.Capacity == path.Bottleneck)
+                
+                if (foundEdge.Capacity == path.Bottleneck) // no more flow
                 {
                     // remove edge entirely
                     from.Outgoing.Remove(foundEdge);
                 }
                 else
                 {
-                    foundEdge.Capacity -= path.Bottleneck;
+                    if (foundEdge.Capacity != -1)
+                        foundEdge.Capacity -= path.Bottleneck;
                 }
 
                 // add reverse edge
@@ -207,15 +214,12 @@ namespace FlowBehindEnemyLines
                 if (reverseEdge != null)
                 {
                     // increase capacity of reversed path
-                    reverseEdge.Capacity += path.Bottleneck;
+                    if (reverseEdge.Capacity != -1)
+                        reverseEdge.Capacity += path.Bottleneck;
                 }
                 else
                     to.Outgoing.Add(new Edge(to.Id, from.Id, path.Bottleneck));
-
-
             }
-
-
         }
 
         private Path FindResidualPath(Path path)
@@ -244,7 +248,7 @@ namespace FlowBehindEnemyLines
                 {
                     // TODO: Handle infinity...
                 }
-                if (edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
+                if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
 
                 // Update set of reached Nodes
                 MinimumCut.Add(node);
@@ -312,10 +316,12 @@ namespace FlowBehindEnemyLines
                 Node from = graph.Nodes.Find(node => node.Id == u);
                 Node to = graph.Nodes.Find(node => node.Id == v);
 
-                // Create the edge
-                var edge = new Edge(from.Id, to.Id, c);
-                // Add edge as outgoing on the from node
-                from.Outgoing.Add(edge);
+                // Create the edges for both directions
+                var fromEdge = new Edge(from.Id, to.Id, c);
+                var toEdge = new Edge(to.Id, from.Id, c);
+                // Add edges
+                from.Outgoing.Add(fromEdge);
+                //to.Outgoing.Add(toEdge);
 
                 // Test
                 //Console.WriteLine("Edge: " + lineArray[0] + " " + lineArray[1] + " " + lineArray[2]);
