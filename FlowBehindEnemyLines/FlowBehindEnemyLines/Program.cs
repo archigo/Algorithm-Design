@@ -154,6 +154,7 @@ namespace FlowBehindEnemyLines
             Console.WriteLine("Original graph:\n" + Original.ToString());
 
             var round = 1;
+            var maxFlow = 0;
 
             Path path = null;
             do
@@ -177,6 +178,7 @@ namespace FlowBehindEnemyLines
                     Console.WriteLine();
                     Console.WriteLine("Bottleneck: {0}\n\n", path.Bottleneck);
 #endif
+                    maxFlow += path.Bottleneck;
                     Console.WriteLine(string.Format("Best path from {0}---[bottleneck: {1}]--->{2}", path.Nodes.First().Name, path.Bottleneck, path.Nodes.Last().Name));
                     UpdateResidualEdges(path);
                 }
@@ -185,6 +187,7 @@ namespace FlowBehindEnemyLines
                     Console.Write("Min cut: ");
                     MinimumCut.ToList().ForEach(x => Console.Write("{0}, ", x.Name));
                     Console.WriteLine();
+                    Console.WriteLine("Max flow: " + maxFlow);
                 }
             } while (path != null);
         }
@@ -234,6 +237,26 @@ namespace FlowBehindEnemyLines
             }
 
             var resultPaths = new List<Path>();
+            //Parallel.ForEach(path.Nodes.Last().Outgoing, (edge) =>
+            //    {
+            //        // Check that edge doesn't lead to already-visited node
+            //        if (path.Nodes.Exists(n => n.Id == edge.ToId)) return;
+
+            //        var node = Original.Nodes.Find(n => n.Id == edge.ToId);
+
+            //        // Update recurisvely used path copy
+            //        var copy = path.Copy();
+            //        copy.Nodes.Add(node);
+            //        if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
+
+            //        // Update set of reached Nodes
+            //        MinimumCut.Add(node);
+
+            //        // Store result of recursion
+            //        var resPath = FindResidualPath(copy);
+            //        if (resPath != null) resultPaths.Add(resPath);
+            //    }
+            //);
             foreach (var edge in path.Nodes.Last().Outgoing)
             {
                 // Check that edge doesn't lead to already-visited node
@@ -244,10 +267,6 @@ namespace FlowBehindEnemyLines
                 // Update recurisvely used path copy
                 var copy = path.Copy();
                 copy.Nodes.Add(node);
-                if (edge.Capacity == -1)
-                {
-                    // TODO: Handle infinity...
-                }
                 if (edge.Capacity != -1 && edge.Capacity < copy.Bottleneck) copy.Bottleneck = edge.Capacity;
 
                 // Update set of reached Nodes
@@ -321,7 +340,7 @@ namespace FlowBehindEnemyLines
                 var toEdge = new Edge(to.Id, from.Id, c);
                 // Add edges
                 from.Outgoing.Add(fromEdge);
-                //to.Outgoing.Add(toEdge);
+                to.Outgoing.Add(toEdge);
 
                 // Test
                 //Console.WriteLine("Edge: " + lineArray[0] + " " + lineArray[1] + " " + lineArray[2]);
