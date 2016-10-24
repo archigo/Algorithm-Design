@@ -31,7 +31,6 @@ namespace Closest_Points
     public class Program
     {
         public static List<Point> Input { get; set; } = new List<Point>();
-        public static List<Point> SortedByY { get; set; }
 
         private static bool fullExection = true;
         public static void Main(string[] args)
@@ -47,7 +46,6 @@ namespace Closest_Points
                     if (Path.GetFileName(file).StartsWith("wc")) continue;
                     CalculateResultForFile(Path.GetFileName(file), file);
                     Input.Clear();
-                    SortedByY.Clear();
                 }
                 watch.Stop();
                 Console.WriteLine(string.Format("FINISHED in {0} ms", watch.ElapsedMilliseconds));
@@ -80,7 +78,6 @@ namespace Closest_Points
             Parse(contentArray);
 
             var input = Input.OrderBy(p => p.X).ToList();
-            SortedByY = Input.OrderBy(p => p.Y).ToList();
             var result = DoWork(input);
 
             Console.WriteLine(fileName + ": " + Input.Count + ", " + result);
@@ -120,10 +117,8 @@ namespace Closest_Points
             var res2 = DoWork(input.GetRange(halfSize, input.Count - halfSize));
             delta = Math.Min(res1, res2);
             var midElem = input[halfSize];
-            // By fetching from already-sorted "SortedByY" list, the fetched elements are implicitly sorted
-            // Preserves order: http://stackoverflow.com/questions/204505/preserving-order-with-linq (SO is God)
-            var ySortedWithinDelta = SortedByY.Where(p => (midElem.X - p.X <= delta && midElem.X - p.X >= 0)
-                                                      || (p.X - midElem.X <= delta && p.X - midElem.X >= 0)).ToList();
+            var ySortedWithinDelta = input.Where(p => (midElem.X - p.X <= delta && midElem.X - p.X >= 0)
+                                                      || (p.X - midElem.X <= delta && p.X - midElem.X >= 0)).OrderBy(p => p.Y).ToList();
 
             if (ySortedWithinDelta.Count == 1) return delta;
 
