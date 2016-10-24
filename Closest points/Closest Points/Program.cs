@@ -38,7 +38,7 @@ namespace Closest_Points
         {
             if (fullExection)
             {
-                var directoryPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\"), @"closest-points\data\");
+                var directoryPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"../../../"), @"closest-points/data/");
                 var files = Directory.GetFiles(directoryPath);
                 var watch = new Stopwatch();
                 watch.Start();
@@ -63,7 +63,7 @@ namespace Closest_Points
                     Console.WriteLine("Write the name of a file in the data subfolder. FX: \"a280 - tsp.txt\"");
                     fileName = Console.ReadLine();
                 }
-                var fullPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"..\..\..\"),
+                var fullPath = Path.Combine(Path.Combine(Environment.CurrentDirectory, @"../../../"),
                     string.Format(@"closest-points\data\{0}", fileName));
 
                 CalculateResultForFile(fileName, fullPath);
