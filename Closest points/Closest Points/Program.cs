@@ -31,6 +31,7 @@ namespace Closest_Points
     public class Program
     {
         public static List<Point> Input { get; set; } = new List<Point>();
+        public static List<Point> SortedByY { get; set; }
 
         private static bool fullExection = true;
         public static void Main(string[] args)
@@ -78,7 +79,8 @@ namespace Closest_Points
             Parse(contentArray);
 
             var input = Input.OrderBy(p => p.X).ToList();
-            var result = DoWork(input);
+            SortedByY = Input.OrderBy(p => p.Y).ToList();
+            var result = DoWork(input, SortedByY);
 
             Console.WriteLine(fileName + ": " + Input.Count + ", " + result);
         }
@@ -104,7 +106,7 @@ namespace Closest_Points
             }
         }
 
-        private static double DoWork(List<Point> input)
+        private static double DoWork(List<Point> input, IEnumerable<Point> ySorted)
         {
             double dist;
             double delta;
@@ -113,10 +115,20 @@ namespace Closest_Points
                 return GetResultForLessThanFourPoints(input);
             }
             var halfSize = input.Count/2;
-            var res1 = DoWork(input.GetRange(0, halfSize));
-            var res2 = DoWork(input.GetRange(halfSize, input.Count - halfSize));
-            delta = Math.Min(res1, res2);
             var midElem = input[halfSize];
+            var yLeft = new List<Point>();
+            var yRight = new List<Point>();
+            //foreach (var p in ySorted) // This is slow as hell! (heightens execution time from 15s to 65s)
+            //{
+            //    if (p.X <= midElem.X)
+            //        yLeft.Add(p);
+            //    else
+            //        yRight.Add(p);
+            //}
+
+            var res1 = DoWork(input.GetRange(0, halfSize), yLeft);
+            var res2 = DoWork(input.GetRange(halfSize, input.Count - halfSize), yRight);
+            delta = Math.Min(res1, res2);
             var ySortedWithinDelta = input.Where(p => (midElem.X - p.X <= delta && midElem.X - p.X >= 0)
                                                       || (p.X - midElem.X <= delta && p.X - midElem.X >= 0)).OrderBy(p => p.Y).ToList();
 
@@ -124,7 +136,6 @@ namespace Closest_Points
 
             for (int i = 0; i < ySortedWithinDelta.Count; i++)
             {
-                // ALTERNATIVE: 
                 var pt = ySortedWithinDelta[i];
 
                 var ySortedWithoutPt = new List<Point>(ySortedWithinDelta);
